@@ -13,3 +13,5 @@ zimbra kullanıcısı yetkisi ile çalıştırılmalıdır.
 
 zm.conf dosyası içerisinde gerekli bilgilerin doldurulması gerekmektedir.
 
+
+Please contact me at mansur [at] siirt [dot] edu [dot] tr  at anytime.
