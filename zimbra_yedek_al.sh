@@ -1,6 +1,5 @@
 #!/bin/bash
-CWD=$(pwd)
-source $CWD/zm.conf
+source /opt/zimbra/backup/zm.conf
 NOW=$(date +"%Y%m%d%H%M")
 CURRENT=$(df / | grep / | awk '{ print $5}' | sed 's/%//g')
 
