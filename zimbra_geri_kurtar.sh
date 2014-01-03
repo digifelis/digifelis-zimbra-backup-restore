@@ -1,33 +1,44 @@
 #!/bin/bash
+CWD=$(pwd)
+source $CWD/zm.conf
+NOW=$(date +"%Y%m%d%H%M")
+CURRENT=$(df / | grep / | awk '{ print $5}' | sed 's/%//g')
 
-source /opt/zimbra/backup/zm.conf
+if [ "$CURRENT" -gt "$HARDDISK" ] ; then
+echo "harddisk normal degil"
+else
 
-echo 'yedek klasor adi'
-read yedekklasor
+mkdir $WORKDIR/$NOW
+chmod 777 $WORKDIR/$NOW
+touch $WORKDIR/$NOW/sifreler.txt
+chmod 777 $WORKDIR/$NOW/sifreler.txt
+ 
 
-while read line
-do 
-email=$(echo $line | awk '{print $1}')
-sifre=$(echo $line | awk '{print $3}')
+for i in `/opt/zimbra/bin/zmprov -l gaa | egrep -v 'galsync|spam|ham|virus|stimpson'`;
+do
+	echo $i , `/opt/zimbra/bin/zmprov -l ga $i userPassword | grep userPassword | sed 's/userPassword: //'` >> $WORKDIR/$NOW/sifreler.txt
+	echo "$i , `/opt/zimbra/bin/zmprov -l ga $i userPassword | grep userPassword | sed 's/userPassword: //'`";
+	curl -k -u $ADMINUSER:$ADMINPASS https://$URLAL:7071/home/$i/?fmt=tgz > $WORKDIR/$NOW/$i.tgz 
+	echo '------------------------------------------------------------------------------'
+done;
+chmod -R 777 $NOW
+echo "işlem bitti"
 
-echo $email 'hesabı işlemi'
-echo 'hesap oluşturuluyor'
 
 
-if [ $email != $ADMINEMAIL ]; then
-	zmprov ca $email 123456
-	echo 'hesap değiştiriliyor'
-	zmprov ma $email userPassword $sifre
+
+if [ $AKTARMA == "evet" ]; then
+echo "karşı sisteme dosya aktarma işlemi başlıyor"
+scp -r $WORKDIR/$NOW $AKTARMAADRES
+echo "aktarÄ±m iÅŸlemi bitti"
+	
+	if [ $ESKIVERI == "evet" ]; then
+	rm -rf $WORKDIR/$NOW
+	echo "oluşturulan klasör silindi"
+	fi
+
 
 fi
 
 
-
-
-#curl -k -u $ADMINUSER:$ADMINPASS https://$URLAL:7071/home/$MAIL/?fmt=tgz > $WORKDIR/$yedekklasor/$MAIL.tgz
-echo 'yedek dosyası yükleniyor'
-curl -k --data-binary @$WORKDIR/$yedekklasor/$email.tgz -u $ADMINUSER:$ADMINPASS https://$URLVER:7071/service/home/$email/?fmt=tgz
-echo '-----------------------------------------------------------------'
-
-done < $yedekklasor/sifreler.txt
-echo 'işlem bitti'
+fi
