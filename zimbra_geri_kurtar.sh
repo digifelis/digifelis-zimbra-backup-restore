@@ -1,6 +1,7 @@
 #!/bin/bash
+CWD=$(pwd)
+source $CWD/zm.conf
 
-source /opt/zimbra/backup/zm.conf
 
 echo 'yedek klasor adi'
 read yedekklasor
